@@ -62,14 +62,20 @@ Swell = struct(); % Struct for swell
 WS.Hs       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Tp       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Gamma    = fscanf(fid,'%f',1);fgetl(fid);
-WS.Heading  = fscanf(fid,'%f',1)*pi/180;fgetl(fid);
+WS.Heading  = eval(fscanf(fid,'%s',1))*pi/180;fgetl(fid);
 WS.Spread  = fscanf(fid,'%f',1);fgetl(fid);
 WS.Ndir     = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid);
 Swell.Hs = fscanf(fid,'%f',1);fgetl(fid);
 Swell.Tp = fscanf(fid,'%f',1);fgetl(fid);
 Swell.Gamma = fscanf(fid,'%f',1);fgetl(fid);
-Swell.Heading = fscanf(fid,'%f',1)*pi/180;fgetl(fid);
+Swell.Heading = eval(fscanf(fid,'%s',1))*pi/180;fgetl(fid);
 Swell.X    = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid);
+
+% Current
+Current.Heading = eval(fscanf(fid,'%s',1))*pi/180;fgetl(fid);
+Current.Velocity = fscanf(fid,'%f',1);fgetl(fid);
+Current.Power = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid);
+
 
 ORDER  = fscanf(fid,'%f',1);fgetl(fid);
 if ORDER == 1.2; wheeler=1; end % Wheeler stretching activated
@@ -405,12 +411,29 @@ if ORDER <= 1
 end
 
 
+%*************************************************************************%
+% Current velocity
+% Stretching of current profile to free surface
+z_tide = (h+sum(zeta,2)).*(1+permute(z,[1,3,4,5,2])/h)-h;
+u_tide = Current.Velocity*((h+z_tide)/h).^Current.Power;
+u_tidex = u_tide.*cos(Current.Heading);
+u_tidey = -u_tide.*sin(Current.Heading);
+
+dummy = zeros(size(cat(2,u_tidex,u_tidey)));
+u=cat(2,u,u_tidex,u_tidey); % Add current velocities
+a = cat(2,a,dummy);
+zeta=cat(2,zeta,dummy(:,:,:,:,1));
+theta=[theta,Current.Heading,Current.Heading]; % Add current directions
+Ntheta=length(theta);
+
+
 
 %*************************************************************************%
 % Plot to gridwave file
 
 % Shape data to x,y,z directions
 datashape;
+
 
 
 if FORMAT == 1 % USFOS/vpOne grid: .w33 file                                                  % Here
