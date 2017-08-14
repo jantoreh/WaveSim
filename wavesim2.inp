@@ -2,25 +2,25 @@
 2   				- Wave input type. 1=Spectrum/elevation in (0,0), 2=GWF
 1              - Output format, vpOne/USFOS=1, FASTv8=2, SIMA=3 (SIMA not implemented yet)
 1				- Perform simulation (1) or not (0), only available for Wavetype=2.
-100					- Complete simulation time including startup
+700					- Complete simulation time including startup
 0.2					    - Time-step for hydrodynamics
 1					- Seed number
 30					- Depth
+1					- Tide (added to depth) [m]
 - Structural variables
 8				- Pile diameter for MacCamy and Fuchs correction, not used if zero
-- Total/Wind Sea variables
-1    			    - Switch: 1: Use variables in this section for total sea if Hs_swell is zero. 2: Use Wind and Swell sea variables to create total sea state with same energy.
-4					- Significant wave height for wind-sea
-6				    - Peak period for wind-sea
+- Wind Sea variables
+5					- Significant wave height for wind-sea
+8				    - Peak period for wind-sea
 0                   - JONSWAP peak shape factor for wind sea, use default if 0.
-45					- Wind sea mean direction [deg]
+0					- Wind sea mean direction [deg]
 0       			- Spreading exponent for wind-sea/total sea, long-crested used if zero, recommended 2 or 4. Is also used for total sea.
 11 					- Minimum number of spreading directions. Will be modified according to swell direction.
 - Swell variables
-0		    		- Significant wave height fo swell, turned off if zero
-8                   - Peak period for swell
+2		    		- Significant wave height fo swell, turned off if zero
+14                   - Peak period for swell
 0                   - JONSWAP peak shape factor for swell, use default if 0.
-40	    			- Swell heading [deg]
+90	    			- Swell heading [deg]
 0                   - Swell spreading exponent - not implemented yet   
 - Wave theory parameters
 1.1    			    - Simulation order undisturbed wave (see documentation, Recommended: No elevation=1, Vertical stretch=1.1, Wheeler to be implemented.)
@@ -29,8 +29,8 @@
 0 						- Node for Wamit forces (USFOS/vpOne)
 - Misc parameters
 1     					- randAmp, use random wave amplitudes if = 1;
-8 -20 20                  - x-distribution, [number of x-values, x_min,x_max], blank space separation
-8 -20 20                  - y-distribution
+10 -30 30                  - x-distribution, [number of x-values, x_min,x_max], blank space separation
+10 -30 30                  - y-distribution
 3 				        - Distribution of wave kinematics points in z-direction (logarithmic:0, uniform:1,  user-defined:3)
 10                      - Maximum z-value for wave kinematics [m]
 42						- Number of values in z-direction

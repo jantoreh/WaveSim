@@ -20,7 +20,6 @@ function OUT=wavesim2(varargin)
 
 dir = './'; % Initialize the present location as the output directory
 
-
 if rem(nargin,2)
     error('Number of input arguments must be ZERO or EVEN')
 end
@@ -53,14 +52,13 @@ if exist('seed.txt','file'); seed=load('seed.txt','-ascii');end % Import seed.tx
 if isempty(seed); seed_file=fscanf(fid,'%s',1);     % Then path to seed file is given: Uniform(0,2pi)
 seed=load(seed_file);end                            % Read seed file
 fgetl(fid);                                         % Continue
-h      = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid);
+h      = fscanf(fid,'%f',1);fgetl(fid);
+Ht     = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid);
 D      = fscanf(fid,'%f',1);fgetl(fid);fgetl(fid); % MacCamy Fuchs diameter
 if D>0; MacCam=1; else MacCam=0; end
 
 WS    = struct(); % Struct for wind sea/total sea
 Swell = struct(); % Struct for swell
-
-Switch1  = fscanf(fid,'%f',1);fgetl(fid);
 WS.Hs       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Tp       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Gamma    = fscanf(fid,'%f',1);fgetl(fid);
@@ -113,7 +111,15 @@ if Z_OPTION==3 && Nz > 0
     z=sort(z);
 end
 
+% Adjust Z-distribution for tidal elevation
+z=z+Ht; % Caluculate for larger/smaller z-values
+z(z<-h)=[]; % Remove evaluation points below surface
+Nz = length(z);
+
+% Close inputfile
 fclose(fid);
+
+
 
 %*************************************************************************%
 % Default values only changed with varargin
@@ -207,80 +213,6 @@ if ~isstruct(Spectrum) % Spectrum is not given and must be calculated
 wavespectrum;
 
 
-%*************************************************************************%
-% Switch for total sea
-
-if Switch1 == 2  % Generate total sea from wind sea and swell
-    WS.Hs = sqrt(Swell.Hs^2 + WS.Hs^2); % Hs for total sea
-    
-    % Total heading
-    WS.Heading = atan2(WS.Hs^2*sin(WS.Heading)+Swell.Hs^2*sin(Swell.Heading),WS.Hs^2*cos(WS.Heading)+Swell.Hs^2*cos(Swell.Heading));
-    
-    if WS.Heading < 0
-        WS.Heading = WS.Heading + 2*pi;
-    end  
-    
-    % Zero out swell component
-    Swell.Hs = 0;
-    
-end
-
-
-%*************************************************************************%
-% Total spectrum
-
-if Switch1 == 2 % Generate total spectrum from Ws and Swell
-    err = Energy;
-    E = Energy; % Energy from initial spectrum
-    
-    % Stepwise change in Tp
-    dTp = 0.005;
-    
-    % Initiate Tp
-    WS.Tp = mean([WS.Tp,Swell.Tp]); % Minimum Tp
-    %Tp_max = max([WS.Tp,Swell.Tp])*1.2; % Maximum Tp
-
-    % Maximum iterations
-    ITmax = 1e4;
-    it = 1;
-    
-    while ( abs(err) > 0.05 && it < ITmax ) || it == 1 % Iterate until required error - make sure that at least one iteration is made
-        
-        % Run wavespectrum
-        wavespectrum;
-        E2 = Energy;
-        
-        % Iterate Tp
-        dEdT = 1;
-        WS.Tp = dEdT*dTp + WS.Tp;
-        err=(E-E2)/E;
-        
-        it = it+1;
-        
-    end
-    
-    
-    if it==ITmax || abs(err) > 0.05
-        msg=['Maximum number of iterations reached, Error in Energy: ',num2str(err*100), ', used Tp=',num2str(WS.Tp)];
-        OUT.msg=msg;
-        if err > 0.05 % Useless spectrum
-            OUT.Error=1;
-            OUT.ErrMsg = 'Large error in Tp.';
-        else
-            OUT.Error = 0;
-        end
-            
-    else
-        OUT.Error = 0;
-    end
-    
-        
-
-else
-    OUT.Error=0;
-end
-
-
    
 else % Spectrum is given as input
    omega = Spectrum.omega;
@@ -293,8 +225,6 @@ else % Spectrum is given as input
    N = Spectrum.N;
    
    
-   
-
 end
 
     % Assign output
@@ -307,15 +237,15 @@ end
     OUT.dw = dw;
     OUT.Tp = WS.Tp;
     
-if RunID == 1 % Escape from WaveSim
+if RunID == 1 % Escape from WaveSim 
     return
 end
 
 %*************************************************************************%
 % Create z-distribution based on extreme value statistics:
 if ~exist('z','var')
-plott=0;
-z = z_distribution(Z_MAX,Nz,h,Z_OPTION,plott);                 %0=log, 1=uniform
+    plott=0;
+    z = z_distribution(Z_MAX,Nz,h,Z_OPTION,plott);                 %0=log, 1=uniform
 end
 
 %*************************************************************************%
@@ -481,11 +411,10 @@ end
 
 % Shape data to x,y,z directions
 datashape;
-    
-if FORMAT == 1 % USFOS/vpOne grid: .w33 file                                                  % Here
-  
-    write_gwf_usfos(elev,ux,uy,uz,ax,ay,az,t,x,[x1,x2],y,[y1,y2],z,dir,file_gwf);
 
+
+if FORMAT == 1 % USFOS/vpOne grid: .w33 file                                                  % Here
+    write_gwf_usfos(elev,ux,uy,uz,ax,ay,az,t,x,[x1,x2],y,[y1,y2],z,dir,file_gwf);
 elseif FORMAT == 2 % FAST Grid: .Vxi,.Vyi,.Vzi,.Axi,.Ayi,.Azi,.Elev
     % Specify filename without extension
     file = 'gwf';
@@ -540,7 +469,8 @@ if Sim == 1 && RunID>1 && min([Ny,Nx]) > 1 && ~isOctave% Perform live wave simul
     wavesimulation;
 elseif isOctave && Sim == 1 && RunID>1
     disp('Simulation is not performed in Octave')
+elseif min([Ny,Nx])==1
+    disp('Too few gridpoints in X or Y-direction for simulation')
 end
-
 
 return
