@@ -59,6 +59,8 @@ if D>0; MacCam=1; else MacCam=0; end
 
 WS    = struct(); % Struct for wind sea/total sea
 Swell = struct(); % Struct for swell
+
+Switch1  = fscanf(fid,'%f',1);fgetl(fid);
 WS.Hs       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Tp       = fscanf(fid,'%f',1);fgetl(fid);
 WS.Gamma    = fscanf(fid,'%f',1);fgetl(fid);
@@ -237,9 +239,9 @@ end
     OUT.dw = dw;
     OUT.Tp = WS.Tp;
     
-if RunID == 1 % Escape from WaveSim 
-    return
-end
+%if RunID == 1 % Escape from WaveSim 
+%    return
+%end
 
 %*************************************************************************%
 % Create z-distribution based on extreme value statistics:
