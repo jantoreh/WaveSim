@@ -117,10 +117,7 @@ if Z_OPTION==3 && Nz > 0
     z=sort(z);
 end
 
-% Adjust Z-distribution for tidal elevation
-z=z+Ht; % Caluculate for larger/smaller z-values
-z(z<-h)=[]; % Remove evaluation points below surface
-Nz = length(z);
+
 
 % Close inputfile
 fclose(fid);
@@ -411,6 +408,7 @@ if ORDER <= 1
 end
 
 
+
 %*************************************************************************%
 % Current velocity
 % Stretching of current profile to free surface
@@ -426,6 +424,9 @@ zeta=cat(2,zeta,dummy(:,:,:,:,1));
 theta=[theta,Current.Heading,Current.Heading]; % Add current directions
 Ntheta=length(theta);
 
+%*************************************************************************%
+% Adjust Z-distribution for tidal elevation
+z=z+Ht; 
 
 
 %*************************************************************************%

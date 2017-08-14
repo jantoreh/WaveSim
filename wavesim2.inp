@@ -2,13 +2,13 @@
 2   				- Wave input type. 1=Spectrum/elevation in (0,0), 2=GWF
 1              - Output format, vpOne/USFOS=1, FASTv8=2, SIMA=3 (SIMA not implemented yet)
 1				- Perform simulation (1) or not (0), only available for Wavetype=2.
-100					- Complete simulation time including startup
+700					- Complete simulation time including startup
 0.2					    - Time-step for hydrodynamics
 1					- Seed number
 30					- Depth
-1					- Tide (added to depth) [m]
+-1					- Tide (added to depth) [m]
 - Structural variables
-8				- Pile diameter for MacCamy and Fuchs correction, not used if zero
+9				- Pile diameter for MacCamy and Fuchs correction, not used if zero
 - Wind Sea variables
 5					- Significant wave height for wind-sea
 8				    - Peak period for wind-sea
@@ -33,13 +33,12 @@
 0 						- Node for Wamit forces (USFOS/vpOne)
 - Misc parameters
 1     					- randAmp, use random wave amplitudes if = 1;
-10 -30 30                  - x-distribution, [number of x-values, x_min,x_max], blank space separation
-10 -30 30                  - y-distribution
+1 -10 10                  - x-distribution, [number of x-values, x_min,x_max], blank space separation
+1 -10 10                  - y-distribution
 3 				        - Distribution of wave kinematics points in z-direction (logarithmic:0, uniform:1,  user-defined:3)
 10                      - Maximum z-value for wave kinematics [m]
-42						- Number of values in z-direction
--30                      - Table containing input z-values if Z_OPTION=3 and NZ>0, must correspond to nodes in HydroDyn if FAST is used.
--28
+41						- Number of values in z-direction                
+-28   - Table containing input z-values if Z_OPTION=3 and NZ>0, must correspond to nodes in HydroDyn if FAST is used.
 -26
 -24
 -22
