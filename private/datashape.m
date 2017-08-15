@@ -7,7 +7,7 @@
     
     
     % Repeat theta to account for whole grid
-    Theta = repmat(theta,Nt,1,Nx,Ny,Nz);
+    Theta = repmat(theta,[Nt,1,Nx,Ny,Nz]);
     
     ncol = Nz*Ny*Nx; % Total number of columns in files
 
@@ -17,9 +17,9 @@
     %*********************************************************************%
     % Correct for wave elevation
     elev = sum(zeta(:,:,:,:),2); % Sum over all directions in all points
-    Z = repmat(permute(z,[1,3,4,5,2]),Nt,1,Nx,Ny,1);
-    id = (Z>repmat(elev,1,1,1,1,Nz)); % Find points larger than elevation
-    id = repmat(id,1,Ntheta,1,1,1);
+    Z = repmat(permute(z,[1,3,4,5,2]),[Nt,1,Nx,Ny,1]);
+    id = (Z>repmat(elev,[1,1,1,1,Nz])); % Find points larger than elevation
+    id = repmat(id,[1,Ntheta,1,1,1]);
     u(id)=0;
     a(id)=0;
     

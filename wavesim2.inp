@@ -20,10 +20,10 @@
 0		    		- Significant wave height fo swell, turned off if zero
 14                   - Peak period for swell
 0                   - JONSWAP peak shape factor for swell, use default if 0.
-90+10	    			- Swell heading [deg]
+0+90	    			- Swell heading [deg]
 0                   - Swell spreading exponent, long crested if zero.
 - Current with linear extrapolation to the free surface (Wheeler)
-45-20			- Current direction [deg]
+45			- Current direction [deg]
 1			- Current velocity [m/s]
 0.14			- Current power law [-]
 - Wave theory parameters
